@@ -1,0 +1,13 @@
+# Beehive coordination files to exclude from git
+
+# Bee status files (session-specific, not shared)
+.hive/
+
+# Claude Code
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+*~
+*.swp

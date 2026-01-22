@@ -15,14 +15,13 @@ beehive              # Main script (~400 lines bash)
 ├── Launch           # do_launch() - tmux session setup
 └── Main             # Argument parsing, dispatch
 
-docs/A2A-PLAN.md     # v1 roadmap for agent-to-agent coordination
 README.md            # User documentation
 ```
 
 ## Design Principles
 
 1. **Interactive, not autonomous** - User directs agents, approves steps
-2. **File-based coordination** - TRACKER.md, plans/, CLAUDE.md
+2. **File-based coordination** - plans/_meta/TRACKER.md, plans/, CLAUDE.md
 3. **No write conflicts** - Each agent owns specific files
 4. **Minimal dependencies** - Just bash + tmux + claude CLI
 5. **Simple over clever** - Plain markdown, no JSON, no daemons
@@ -42,14 +41,14 @@ README.md            # User documentation
 mkdir /tmp/test-repo && cd /tmp/test-repo
 git init
 /path/to/beehive --init
-ls -la  # Should have CLAUDE.md, plans/, plans/TRACKER.md
+ls -la  # Should have CLAUDE.md, plans/, plans/_meta/TRACKER.md
 
 # Test init (workspace)
 mkdir /tmp/test-ws && cd /tmp/test-ws
 mkdir repo-a repo-b
 git -C repo-a init && git -C repo-b init
 /path/to/beehive --init
-ls -la  # Should have WORKSPACE.md, TRACKER.md, plans/
+ls -la  # Should have WORKSPACE.md, plans/, plans/_meta/TRACKER.md
 
 # Test launch (will open tmux)
 beehive --yes  # Skip confirmation
@@ -65,7 +64,7 @@ beehive --yes  # Should use "test-session" as tmux session name
 |----------|---------|
 | `load_config()` | Parse .beehive.conf without sourcing |
 | `detect_mode()` | Determine workspace vs single repo |
-| `init_repo()` | Create CLAUDE.md, plans/, TRACKER.md |
+| `init_repo()` | Create CLAUDE.md, plans/, plans/_meta/TRACKER.md |
 | `init_workspace()` | Create WORKSPACE.md + per-repo CLAUDE.md |
 | `do_launch()` | Set up tmux session with 4 panes |
 
@@ -86,7 +85,7 @@ Created with: `split-window -h`, `split-window -v` (x2), `select-layout tiled`
 1. Check if it aligns with design principles (interactive, minimal)
 2. Update the bash script
 3. Update README.md if user-facing
-4. Update A2A-PLAN.md if related to v1 coordination features
+4. Update skills/commands docs if coordination behavior changes
 
 ## Common Tasks
 
@@ -97,4 +96,4 @@ Created with: `split-window -h`, `split-window -v` (x2), `select-layout tiled`
 
 ## Version
 
-Current: v0.1.0 (see `VERSION` variable at top of script)
+Current: v0.2.1 (see `VERSION` variable at top of script)

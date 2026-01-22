@@ -5,8 +5,11 @@
 Perform these steps:
 
 1. **Consolidate status** - Read `.hive/bee-*.md` files
-   - Update TRACKER.md Assigned/Status columns to match Bee states
+   - Update `plans/_meta/TRACKER.md` Assigned/Status columns to match Bee states
    - Check for stale claims (Working but Updated > 24h with no Task progress)
+   - Cap Completed table at 20 rows; remove oldest entries
+   - Trim `plans/_meta/SESSION_LOG.md` to the last 7 days
+   - Regenerate `plans/_meta/DEPENDENCIES.md` from plan file Blocked By fields
 
 2. **Process INBOX** - Read `plans/INBOX.md`
    - For each Pending entry: APPROVE (create plan) | REJECT | DEFER | DUPLICATE

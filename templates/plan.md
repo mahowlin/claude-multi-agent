@@ -8,6 +8,7 @@
 
 **Priority:** HIGH | Medium | Low
 **Points:** 1 | 2 | 3
+**Blocked By:** [plans/other-plan.md, or -]
 
 ## Objective
 

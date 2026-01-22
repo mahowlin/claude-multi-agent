@@ -14,7 +14,7 @@
 
 set -e
 
-VERSION="0.2.0"
+VERSION="0.2.1"
 
 # Resolve symlinks to find actual script location (portable for Linux/macOS)
 SCRIPT_SOURCE="${BASH_SOURCE[0]}"
@@ -196,6 +196,7 @@ init_template() {
 init_repo() {
     local dir="$1"
     mkdir -p "$dir/plans/completed"
+    mkdir -p "$dir/plans/_meta"
 
     [[ ! -f "$dir/CLAUDE.md" ]] && cat > "$dir/CLAUDE.md" << 'EOF'
 # Project Instructions for Claude
@@ -208,7 +209,9 @@ init_repo() {
 - **Bees (🐝)**: Execute plans, update status, report discoveries. Read `.skills/bee.md`
 
 ## Coordination Files
-- `plans/TRACKER.md` - Plan status (Queen owns)
+- `plans/_meta/TRACKER.md` - Plan status (Queen owns)
+- `plans/_meta/SESSION_LOG.md` - Session notes (Queen owns)
+- `plans/_meta/DEPENDENCIES.md` - Dependency graph (Queen owns)
 - `.hive/bee-N.md` - Bee status files (each Bee owns their own)
 - `plans/INBOX.md` - Plan requests from Bees
 
@@ -218,19 +221,9 @@ init_repo() {
 - Use /report, /sting, /buzz commands
 EOF
 
-    [[ ! -f "$dir/plans/TRACKER.md" ]] && cat > "$dir/plans/TRACKER.md" << 'EOF'
-# Plan Tracker
-
-**Points Scale:** 1 = Small, 2 = Medium, 3 = Large
-
-## Active Plans
-| Plan | Pts | Priority | Status | Assigned |
-|------|-----|----------|--------|----------|
-
-## Completed
-| Plan | Pts | Outcome |
-|------|-----|---------|
-EOF
+    [[ ! -f "$dir/plans/_meta/TRACKER.md" ]] && cp "$SCRIPT_DIR/templates/TRACKER.md" "$dir/plans/_meta/TRACKER.md"
+    [[ ! -f "$dir/plans/_meta/SESSION_LOG.md" ]] && cp "$SCRIPT_DIR/templates/SESSION_LOG.md" "$dir/plans/_meta/SESSION_LOG.md"
+    [[ ! -f "$dir/plans/_meta/DEPENDENCIES.md" ]] && cp "$SCRIPT_DIR/templates/DEPENDENCIES.md" "$dir/plans/_meta/DEPENDENCIES.md"
 
     init_skills "$dir"
     init_hive "$dir"
@@ -246,11 +239,12 @@ EOF
 init_workspace() {
     local dir="$1"
     mkdir -p "$dir/plans/completed"
+    mkdir -p "$dir/plans/_meta"
 
     [[ ! -f "$dir/CLAUDE.md" ]] && cat > "$dir/CLAUDE.md" << 'EOF'
 # Workspace Instructions
 
-Multi-repo workspace. Read WORKSPACE.md for repo overview, TRACKER.md for active plans.
+Multi-repo workspace. Read WORKSPACE.md for repo overview, plans/_meta/TRACKER.md for active plans.
 When assigned a plan, cd to the target repo and read its CLAUDE.md.
 
 ## Agent Roles
@@ -258,7 +252,9 @@ When assigned a plan, cd to the target repo and read its CLAUDE.md.
 - **Bees (🐝)**: Execute plans, update status, report discoveries. Read `.skills/bee.md`
 
 ## Coordination Files
-- `TRACKER.md` - Plan status (Queen owns)
+- `plans/_meta/TRACKER.md` - Plan status (Queen owns)
+- `plans/_meta/SESSION_LOG.md` - Session notes (Queen owns)
+- `plans/_meta/DEPENDENCIES.md` - Dependency graph (Queen owns)
 - `.hive/bee-N.md` - Bee status files (each Bee owns their own)
 - `plans/INBOX.md` - Plan requests from Bees
 
@@ -281,7 +277,7 @@ EOF
         } > "$dir/WORKSPACE.md"
     }
 
-    [[ ! -f "$dir/TRACKER.md" ]] && cat > "$dir/TRACKER.md" << 'EOF'
+    [[ ! -f "$dir/plans/_meta/TRACKER.md" ]] && cat > "$dir/plans/_meta/TRACKER.md" << 'EOF'
 # Workspace Tracker
 
 **Points Scale:** 1 = Small, 2 = Medium, 3 = Large
@@ -294,6 +290,9 @@ EOF
 | Plan | Pts | Repository | Outcome |
 |------|-----|------------|---------|
 EOF
+
+    [[ ! -f "$dir/plans/_meta/SESSION_LOG.md" ]] && cp "$SCRIPT_DIR/templates/SESSION_LOG.md" "$dir/plans/_meta/SESSION_LOG.md"
+    [[ ! -f "$dir/plans/_meta/DEPENDENCIES.md" ]] && cp "$SCRIPT_DIR/templates/DEPENDENCIES.md" "$dir/plans/_meta/DEPENDENCIES.md"
 
     # Add CLAUDE.md to repos that don't have one
     for repo in "$dir"/*/; do
@@ -376,8 +375,7 @@ do_launch() {
     tmux select-pane -t "$SESSION_NAME:0.3" -T "🐝 Queen"
 
     # Prompts - agents read their skill files
-    local tracker="TRACKER.md"
-    [[ "$mode" == "repo" ]] && tracker="plans/TRACKER.md"
+    local tracker="plans/_meta/TRACKER.md"
 
     local bee_prompt="Read CLAUDE.md, .skills/bee.md"
     [[ "$mode" == "workspace" ]] && bee_prompt+=", WORKSPACE.md"

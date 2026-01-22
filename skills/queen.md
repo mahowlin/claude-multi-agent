@@ -24,6 +24,11 @@ You own TRACKER.md (path given in your prompt). It is the single source of truth
 |------|-----|---------|
 ```
 
+## Supporting Files
+
+- `plans/_meta/SESSION_LOG.md` stores session notes (keep last 7 days only).
+- `plans/_meta/DEPENDENCIES.md` holds the Mermaid dependency graph.
+
 ## Creating Plans
 
 From user direction OR from INBOX.md requests:
@@ -36,10 +41,13 @@ Ensure Done Criteria exist before marking any plan Ready.
 
 ## Consolidating Status
 
-Read `.hive/bee-*.md` files and update TRACKER.md:
+Read `.hive/bee-*.md` files and update `plans/_meta/TRACKER.md`:
 - Bee claims plan → TRACKER: Working, Assigned: Bee N
 - Bee blocked → TRACKER: Blocked
 - Bee complete → Verify, then TRACKER: Done
+- Keep Completed table capped at 20 rows; remove oldest entries
+- Trim `plans/_meta/SESSION_LOG.md` to the last 7 days
+- Regenerate `plans/_meta/DEPENDENCIES.md` from plan file Blocked By fields
 
 ## Verifying Completion
 
@@ -71,3 +79,4 @@ Archive Processed entries > 7 days to `plans/INBOX_ARCHIVE.md`.
 - Only you create plans
 - Only you set Done (Bees set Complete)
 - Run /buzz at least once per session
+- Keep TRACKER.md template-exact (no notes, graphs, or summaries)

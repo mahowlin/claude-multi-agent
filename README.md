@@ -70,24 +70,74 @@ myproject/
 │   ├── report.md
 │   └── bedtime.md
 └── plans/
-    ├── TRACKER.md               # Plan status (Queen owns)
     ├── INBOX.md                 # Plan requests from Bees
     ├── TEMPLATE.md              # Template for new plans
-    └── completed/               # Archived plans
+    ├── completed/               # Archived plans
+    └── _meta/
+        ├── TRACKER.md           # Plan status (Queen owns)
+        ├── SESSION_LOG.md       # Session notes (trimmed regularly)
+        └── DEPENDENCIES.md      # Dependency graph (Mermaid)
 ```
 
-**Workspace mode** (multiple git repos in one directory) also creates `WORKSPACE.md` and moves `TRACKER.md` to the root.
+**Workspace mode** (multiple git repos in one directory) also creates `WORKSPACE.md` and a workspace tracker at `plans/_meta/TRACKER.md`.
 
 ## How It Works
 
+```
+                              ┌─────────────┐
+                              │  Beekeeper  │◄─────────────────────────────┐
+                              │    (you)    │                              │
+                              └──────┬──────┘                              │
+                                     │ directs                             │
+            ┌────────────────────────┼────────────────────────┐            │
+            │                        │                        │            │
+            ▼                        ▼                        ▼            │
+      ┌───────────┐            ┌───────────┐            ┌───────────┐      │
+      │   Bee 1   │            │   Bee 2   │            │   Bee 3   │      │
+      └─────┬─────┘            └─────┬─────┘            └─────┬─────┘      │
+            │                        │                        │            │
+            │ writes                 │ writes                 │ writes     │
+            ▼                        ▼                        ▼            │
+      ┌───────────┐            ┌───────────┐            ┌───────────┐      │
+      │  .hive/   │            │  .hive/   │            │  .hive/   │      │
+      │ bee-1.md  │            │ bee-2.md  │            │ bee-3.md  │      │
+      └─────┬─────┘            └─────┬─────┘            └─────┬─────┘      │
+            │                        │                        │            │
+            └────────────────────────┼────────────────────────┘            │
+                                     │                                     │
+                                     │ Queen reads (.hive/bee-*.md)        │
+                                     ▼                                     │
+                              ┌─────────────┐                              │
+                              │    Queen    │──────────────────────────────┘
+                              └──────┬──────┘
+                                     │
+               ┌─────────────────────┼─────────────────────┐
+               │ writes              │ reads               │ writes
+               ▼                     ▼                     ▼
+        ┌─────────────┐       ┌─────────────┐       ┌─────────────┐
+        │ TRACKER.md  │       │  INBOX.md   │       │   plans/    │
+        │  (status)   │       │(discoveries)│       │(task files) │
+        └─────────────┘       └──────┬──────┘       └──────┬──────┘
+                                     ▲                     │
+                                     │                     │
+                      Bees /report ──┘                     │ Bees read
+                                                           │
+            ┌──────────────────────────────────────────────┘
+            │
+            ▼
+      ┌───────────┐            ┌───────────┐            ┌───────────┐
+      │   Bee 1   │            │   Bee 2   │            │   Bee 3   │
+      └───────────┘            └───────────┘            └───────────┘
+```
+
 **Roles:**
-- **Queen** — Creates plans, tracks progress in `TRACKER.md`, verifies completion
+- **Queen** — Creates plans, tracks progress in `plans/_meta/TRACKER.md`, verifies completion
 - **Bees** — Execute plans, update status in `.hive/bee-N.md`, report discoveries
 - **Beekeeper (you)** — Direct agents, copy messages between panes, approve major steps
 
 **Workflow:**
 1. Tell Queen what to build
-2. Queen creates plans in `plans/`, updates `TRACKER.md`
+2. Queen creates plans in `plans/`, updates `plans/_meta/TRACKER.md`
 3. Direct each Bee to claim a plan
 4. Bees execute, update status, run `/sting` when done
 5. Queen verifies and archives completed plans

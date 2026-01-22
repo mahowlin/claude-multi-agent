@@ -15,7 +15,15 @@
 set -e
 
 VERSION="0.2.0"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Resolve symlinks to find actual script location (portable for Linux/macOS)
+SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SCRIPT_SOURCE" ]]; do
+    SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+    SCRIPT_SOURCE="$(readlink "$SCRIPT_SOURCE")"
+    [[ "$SCRIPT_SOURCE" != /* ]] && SCRIPT_SOURCE="$SCRIPT_DIR/$SCRIPT_SOURCE"
+done
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" && pwd)"
 
 # Colors
 RED='\033[0;31m'
